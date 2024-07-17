@@ -1,0 +1,27 @@
+/* dashboard.component.scss */
+
+.table-container {
+  height: 500px; /* Adjust height as needed */
+  overflow-y: auto; /* Enable scrolling if content exceeds container height */
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #ccc; /* Table border */
+}
+
+.table th,
+.table td {
+  padding: 8px; /* Adjust padding as needed */
+  text-align: left;
+  border: 1px solid #ccc; /* Cell borders */
+}
+
+.table th {
+  background-color: #f0f0f0; /* Header background color */
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: #f9f9f9; /* Alternate row background color */
+}
