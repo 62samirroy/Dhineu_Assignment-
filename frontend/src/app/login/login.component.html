@@ -1,20 +1,20 @@
 <div class="flex justify-center items-center h-screen bg-gray-100">
-    <div class="form-container">
-        <form (ngSubmit)="onSubmit()" class="login-form">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
+        <form (ngSubmit)="onSubmit()" class="space-y-6">
             <div class="form-field">
-                <mat-form-field class="full-width">
+                <mat-form-field appearance="fill" class="w-full">
                     <mat-label>Username</mat-label>
                     <input matInput [(ngModel)]="username" name="username" required>
                 </mat-form-field>
             </div>
             <div class="form-field">
-                <mat-form-field class="full-width">
+                <mat-form-field appearance="fill" class="w-full">
                     <mat-label>Password</mat-label>
                     <input matInput [(ngModel)]="password" name="password" type="password" required>
                 </mat-form-field>
             </div>
-            <div class="button-container">
-                <button mat-raised-button color="primary" type="submit" class="login-button">
+            <div class="flex justify-center">
+                <button mat-raised-button color="primary" type="submit" class="w-full">
                     Login
                 </button>
             </div>

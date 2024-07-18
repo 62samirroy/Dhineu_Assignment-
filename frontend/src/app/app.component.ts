@@ -1,23 +1,32 @@
-// Import necessary modules and interfaces
-import { Component, Input } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms'; // Importing FormsModule for two-way data binding
-import { CommonModule } from '@angular/common'; // Importing CommonModule for common directives
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AgGridModule } from 'ag-grid-angular';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { HttpClientModule } from '@angular/common/http';
-
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [FormsModule, CommonModule, MatInputModule, MatButtonModule, MatDialogModule, HttpClientModule, RouterLink, RouterOutlet, RouterLinkActive, ReactiveFormsModule, AgGridModule], // Import FormsModule and CommonModule
-  templateUrl: './app.component.html', // Template URL
-  styleUrls: ['./app.component.scss'], // Styles URL
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatButtonModule,
+    MatDialogModule,
+    RouterLink,
+    RouterOutlet,
+    RouterLinkActive,
+    AgGridModule
+  ],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
-
-
-}
+export class AppComponent { }

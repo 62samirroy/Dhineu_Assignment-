@@ -1,15 +1,25 @@
+import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [MatLabel, MatFormField, FormsModule, HttpClientModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    HttpClientModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule
+  ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
   username: string = '';
