@@ -1,0 +1,26 @@
+<div class="p-5 h-full pe-2 border-e-2 border-slate-200 overflow-y-auto custom-scroll">
+    <!-- Active User Info -->
+    <div class="mt-4">
+        <div class="flex pb-2">
+            <p class="font-medium">Username</p>
+        </div>
+        <p class="ps-2 border border-y-0 border-e-0 border-l-2 border-slate-300">
+            {{ activeUser?.username }}
+        </p>
+    </div>
+
+    <!-- Other User Info (Add more fields as needed) -->
+    <div class="mt-6">
+        <div class="flex pb-2">
+            <p class="font-medium">Active User</p>
+        </div>
+        <p class="ps-2 border border-y-0 border-e-0 border-l-2 border-slate-300">
+            {{ activeUser?.email }}
+        </p>
+    </div>
+
+    <!-- Logout Button -->
+    <div class="mt-6" *ngIf="showLogoutButton">
+        <button mat-raised-button color="warn" (click)="logout()">Logout</button>
+    </div>
+</div>
