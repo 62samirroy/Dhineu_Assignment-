@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -17,16 +17,20 @@ import { filter } from 'rxjs/operators';
 export class NavbarComponent implements OnInit {
   activeUser: any;
   showLogoutButton: boolean = false;
+  username: string = '';
+  activeTokenCount: number = 0;
 
   constructor(
     private router: Router,
     private http: HttpClient,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    
   ) { }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.loadActiveUser();
     this.checkUrlForDashboard();
+    this.fetchActiveTokenCount(); // Fetch token count on initialization
   }
 
   loadActiveUser() {
@@ -43,7 +47,6 @@ export class NavbarComponent implements OnInit {
       error => {
         console.error('Error loading active user:', error);
         if (error.status === 401) {
-          // Unauthorized, clear the token and redirect to login
           this.logout();
         }
       }
@@ -56,31 +59,79 @@ export class NavbarComponent implements OnInit {
     ).subscribe(() => {
       const currentUrl = this.router.url;
       this.showLogoutButton = currentUrl.includes('dashboard');
+
+      // Trigger additional updates if needed
+      if (this.showLogoutButton) {
+        this.reloadNavbar();
+      }
     });
+  }
+
+  reloadNavbar() {
+    this.loadActiveUser(); // Example: Reload active user or perform other updates
+    this.loadUsername(); // Reload username or any other relevant data
+  }
+
+  loadUsername() {
+    const userId = localStorage.getItem('currentUserId');
+    const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+
+    if (userId && token) {
+      const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+      this.http.get<any>(`http://localhost:3000/users/${userId}`, { headers }).subscribe(
+        user => {
+          this.username = user.username;
+          console.log(this.username);
+        },
+        error => {
+          console.error('Error fetching user:', error);
+          if (error.status === 403) {
+            this.snackBar.open('Access forbidden. Please login again.', 'Close', {
+              duration: 3000,
+            });
+          }
+        }
+      );
+    }
   }
 
   logout() {
     this.http.post<any>('http://localhost:3000/logout', {}).subscribe(
       () => {
-        // Clear the token from storage
         sessionStorage.removeItem('authToken');
         localStorage.removeItem('authToken');
-
-        // Clear the active user
+        localStorage.removeItem('currentUserId');
         this.activeUser = null;
-
-        // Redirect to login page
         this.router.navigateByUrl('/login');
         this.snackBar.open('Logout successful', 'Close', {
-          duration: 3000, // Snackbar duration
+          duration: 3000,
         });
       },
       (error: any) => {
         console.error('Logout error:', error);
         this.snackBar.open('Logout failed. Please try again.', 'Close', {
-          duration: 3000, // Snackbar duration
+          duration: 3000,
         });
       }
     );
+  }
+
+  // Existing code...
+
+  fetchActiveTokenCount() {
+    const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+    if (token) {
+      const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+      this.http.get<any>('http://localhost:3000/active-tokens/count', { headers }).subscribe(
+        response => {
+          this.activeTokenCount = response.count; // Update the count variable
+        },
+        error => {
+          console.error('Error fetching active token count:', error);
+        }
+      );
+    }
   }
 }

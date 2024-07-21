@@ -43,7 +43,7 @@ app.post('/login', (req, res) => {
         if (results.length > 0) {
             const user = results[0];
             const token = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: rememberMe ? '7d' : '1h' });
-            res.send({ message: 'Login successful', token });
+            res.send({ message: 'Login successful', token, userId: user.id });
         } else {
             res.status(401).send({ message: 'Invalid credentials' });
         }
@@ -116,6 +116,23 @@ app.post('/logout', (req, res) => {
         res.json({ message: 'Logout successful' });
     });
 });
+// Fetch a user by ID (protected route)
+app.get('/users/:id', verifyToken, (req, res) => {
+    const userId = req.params.id;
+    const query = 'SELECT * FROM users WHERE id = ?';
+    db.query(query, [userId], (err, results) => {
+        if (err) {
+            console.error('Error executing query:', err);
+            return res.status(500).send({ message: 'Database error' });
+        }
+        if (results.length > 0) {
+            res.json(results[0]);
+        } else {
+            res.status(404).send({ message: 'User not found' });
+        }
+    });
+});
+
 
 const port = 3000;
 app.listen(port, () => {

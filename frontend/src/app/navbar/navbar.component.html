@@ -1,11 +1,11 @@
 <div class="p-5 h-full pe-2 border-e-2 border-slate-200 overflow-y-auto custom-scroll">
     <!-- Active User Info -->
-    <div class="mt-4">
-        <div class="flex pb-2">
+    <div class="mt-4" *ngIf="showLogoutButton">
+        <div class="flex pb-2 ">
             <p class="font-medium">Username</p>
         </div>
         <p class="ps-2 border border-y-0 border-e-0 border-l-2 border-slate-300">
-            {{ activeUser?.username }}
+            {{username}}
         </p>
     </div>
 
@@ -15,7 +15,7 @@
             <p class="font-medium">Active User</p>
         </div>
         <p class="ps-2 border border-y-0 border-e-0 border-l-2 border-slate-300">
-            {{ activeUser?.email }}
+        {{ activeTokenCount }} <!-- Variable to hold the active token count -->
         </p>
     </div>
 
