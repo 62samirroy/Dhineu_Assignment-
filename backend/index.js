@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const mysql = require('mysql2');
 const cors = require('cors');
 const session = require('express-session');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 app.use(cors());
@@ -28,9 +29,11 @@ db.connect(err => {
     console.log('Database connected!');
 });
 
+const jwtSecret = 'your-jwt-secret'; // Replace with a long random string
+
 // Login route
 app.post('/login', (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, rememberMe } = req.body;
     const query = 'SELECT * FROM users WHERE username = ? AND password = ?';
     db.query(query, [username, password], (err, results) => {
         if (err) {
@@ -39,77 +42,72 @@ app.post('/login', (req, res) => {
         }
         if (results.length > 0) {
             const user = results[0];
-            req.session.userId = user.id; // Store userId in session
-            res.send({ message: 'Login successful' });
+            const token = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: rememberMe ? '7d' : '1h' });
+            res.send({ message: 'Login successful', token });
         } else {
             res.status(401).send({ message: 'Invalid credentials' });
         }
     });
 });
 
-// Fetch all users
-app.get('/users', (req, res) => {
-  const query = 'SELECT * FROM users';
-  db.query(query, (err, results) => {
-    if (err) throw err;
-    res.json(results);
-  });
-});
-
-// Add a user
-app.post('/users', (req, res) => {
-  const newUser = req.body;
-  const query = 'INSERT INTO users SET ?';
-  db.query(query, newUser, (err, result) => {
-    if (err) throw err;
-    res.json({ message: 'User added successfully', id: result.insertId });
-  });
-});
-
-// Update a user
-app.put('/users/:id', (req, res) => {
-  const userId = req.params.id;
-  const updatedUser = req.body;
-  const query = 'UPDATE users SET ? WHERE id = ?';
-  db.query(query, [updatedUser, userId], (err, result) => {
-    if (err) throw err;
-    res.json({ message: 'User updated successfully' });
-  });
-});
-
-// Delete a user
-app.delete('/users/:id', (req, res) => {
-  const userId = req.params.id;
-  const query = 'DELETE FROM users WHERE id = ?';
-  db.query(query, userId, (err, result) => {
-    if (err) throw err;
-    res.json({ message: 'User deleted successfully' });
-  });
-});
-
-// Endpoint to fetch active user information
-app.get('/active-user', (req, res) => {
-    console.log('Session:', req.session);
-    const userId = req.session.userId;
-    if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
+// Middleware to verify JWT
+const verifyToken = (req, res, next) => {
+    const token = req.headers['authorization'];
+    if (!token) {
+        return res.status(403).send({ message: 'No token provided' });
     }
 
-    db.query('SELECT * FROM users WHERE id = ?', [userId], (err, results) => {
-        if (err) throw err;
-        if (results.length > 0) {
-            const user = results[0];
-            res.json({ username: user.username, email: user.email });
-        } else {
-            res.status(404).json({ message: 'User not found' });
+    jwt.verify(token.replace('Bearer ', ''), jwtSecret, (err, decoded) => {
+        if (err) {
+            return res.status(500).send({ message: 'Failed to authenticate token' });
         }
+        req.userId = decoded.userId;
+        next();
+    });
+};
+
+// Fetch all users (protected route)
+app.get('/users', verifyToken, (req, res) => {
+    const query = 'SELECT * FROM users';
+    db.query(query, (err, results) => {
+        if (err) throw err;
+        res.json(results);
     });
 });
 
+// Add a user (protected route)
+app.post('/users', verifyToken, (req, res) => {
+    const newUser = req.body;
+    const query = 'INSERT INTO users SET ?';
+    db.query(query, newUser, (err, result) => {
+        if (err) throw err;
+        res.json({ message: 'User added successfully', id: result.insertId });
+    });
+});
+
+// Update a user (protected route)
+app.put('/users/:id', verifyToken, (req, res) => {
+    const userId = req.params.id;
+    const updatedUser = req.body;
+    const query = 'UPDATE users SET ? WHERE id = ?';
+    db.query(query, [updatedUser, userId], (err, result) => {
+        if (err) throw err;
+        res.json({ message: 'User updated successfully' });
+    });
+});
+
+// Delete a user (protected route)
+app.delete('/users/:id', verifyToken, (req, res) => {
+    const userId = req.params.id;
+    const query = 'DELETE FROM users WHERE id = ?';
+    db.query(query, userId, (err, result) => {
+        if (err) throw err;
+        res.json({ message: 'User deleted successfully' });
+    });
+});
 
 // Endpoint to handle logout
 app.post('/logout', (req, res) => {
-    // Handle logout logic (clear session, tokens, etc.)
     req.session.destroy((err) => {
         if (err) {
             console.error('Error destroying session:', err);
