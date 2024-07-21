@@ -154,9 +154,17 @@ export class DashboardComponent implements OnInit {
   actionCellRenderer(params: any) {
     const eGui = document.createElement('div');
     eGui.innerHTML = `
-      <button class="btn btn-primary btn-sm edit-button">Edit</button>
-      <button class="btn btn-danger btn-sm delete-button">Delete</button>
-    `;
+    <button class="btn btn-primary btn-sm edit-button p-2 rounded hover:bg-blue-600 focus:outline-none">
+      <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h-1V6a1 1 0 00-1-1H8a1 1 0 00-1 1v1H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2zM8 7v1h4V7h-1v1a1 1 0 01-1 1H8a1 1 0 01-1-1V7zm1 2h2v2H9V9zm1 4a2 2 0 110-4 2 2 0 010 4z"/>
+      </svg>
+    </button>
+    <button class="btn btn-danger btn-sm delete-button p-2 rounded hover:bg-red-600 focus:outline-none">
+      <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 4h14M8 4V2a1 1 0 011-1h6a1 1 0 011 1v2m-7 4v8m0 0v2m-4-2h8m-4-8H6"/>
+      </svg>
+    </button>
+  `;
 
     eGui.querySelector('.edit-button')!.addEventListener('click', () => {
       this.onEdit(params.data);
@@ -168,4 +176,6 @@ export class DashboardComponent implements OnInit {
 
     return eGui;
   }
+
+
 }
