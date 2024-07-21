@@ -28,31 +28,11 @@ export class NavbarComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.loadActiveUser();
     this.checkUrlForDashboard();
     this.fetchActiveTokenCount(); // Fetch token count on initialization
   }
 
-  loadActiveUser() {
-    const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
-    if (!token) {
-      this.router.navigateByUrl('/login');
-      return;
-    }
-
-    this.http.get<any>('http://localhost:3000/activeUser', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    }).subscribe(
-      user => this.activeUser = user,
-      error => {
-        console.error('Error loading active user:', error);
-        if (error.status === 401) {
-          this.logout();
-        }
-      }
-    );
-  }
-
+  
   checkUrlForDashboard() {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
@@ -68,8 +48,8 @@ export class NavbarComponent implements OnInit {
   }
 
   reloadNavbar() {
-    this.loadActiveUser(); // Example: Reload active user or perform other updates
     this.loadUsername(); // Reload username or any other relevant data
+    this.fetchActiveTokenCount(); // Fetch token count on initialization
   }
 
   loadUsername() {
@@ -97,8 +77,16 @@ export class NavbarComponent implements OnInit {
   }
 
   logout() {
-    this.http.post<any>('http://localhost:3000/logout', {}).subscribe(
+    const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+    if (!token) {
+      this.router.navigateByUrl('/login');
+      return;
+    }
+
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    this.http.post<any>('http://localhost:3000/logout', {}, { headers }).subscribe(
       () => {
+        this.fetchActiveTokenCount(); // Fetch token count on initialization
         sessionStorage.removeItem('authToken');
         localStorage.removeItem('authToken');
         localStorage.removeItem('currentUserId');
@@ -134,4 +122,5 @@ export class NavbarComponent implements OnInit {
       );
     }
   }
+
 }

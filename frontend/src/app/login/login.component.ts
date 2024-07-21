@@ -68,4 +68,5 @@ export class LoginComponent {
     // Currently, it logs the state of the checkbox
     console.log('Remember Me:', this.rememberMe);
   }
+  
 }
