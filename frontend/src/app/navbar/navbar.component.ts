@@ -86,6 +86,7 @@ export class NavbarComponent implements OnInit {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     this.http.post<any>('http://localhost:3000/logout', {}, { headers }).subscribe(
       () => {
+        this.fetchActiveTokenCount(); // Fetch token count on initialization
         sessionStorage.removeItem('authToken');
         localStorage.removeItem('authToken');
         localStorage.removeItem('currentUserId');
