@@ -5,11 +5,19 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HttpClientModule, HttpClient, HttpHeaders } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-dashboard-entry',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule, MatInputModule, MatDialogModule, HttpClientModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatInputModule,
+    MatDialogModule,
+    HttpClientModule
+  ],
   templateUrl: './dashboard-entry.component.html',
   styleUrls: ['./dashboard-entry.component.scss']
 })
@@ -19,7 +27,8 @@ export class DashboardEntryComponent {
   constructor(
     public dialogRef: MatDialogRef<DashboardEntryComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private http: HttpClient
+    private http: HttpClient,
+    private snackBar: MatSnackBar
   ) {
     this.user = data.user || { username: '', password: '', fullname: '', mobileno: '', active: false };
   }
@@ -42,14 +51,34 @@ export class DashboardEntryComponent {
 
     if (this.user.id) {
       // Edit user
-      this.http.put(`http://localhost:3000/users/${this.user.id}`, payload, { headers }).subscribe(() => {
-        this.dialogRef.close(payload);
-      });
+      this.http.put(`http://localhost:3000/users/${this.user.id}`, payload, { headers }).subscribe(
+        () => {
+          this.snackBar.open('User updated successfully!', 'Close', {
+            duration: 3000, // Snackbar duration
+          });
+          this.dialogRef.close(payload);
+        },
+        (error) => {
+          this.snackBar.open('Failed to update user. Please try again.', 'Close', {
+            duration: 3000, // Snackbar duration
+          });
+        }
+      );
     } else {
       // Add user
-      this.http.post('http://localhost:3000/users', payload, { headers }).subscribe(() => {
-        this.dialogRef.close(payload);
-      });
+      this.http.post('http://localhost:3000/users', payload, { headers }).subscribe(
+        () => {
+          this.snackBar.open('User added successfully!', 'Close', {
+            duration: 3000, // Snackbar duration
+          });
+          this.dialogRef.close(payload);
+        },
+        (error) => {
+          this.snackBar.open('Failed to add user. Please try again.', 'Close', {
+            duration: 3000, // Snackbar duration
+          });
+        }
+      );
     }
   }
 

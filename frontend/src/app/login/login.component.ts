@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { HttpClientModule } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-login',
@@ -29,7 +30,7 @@ export class LoginComponent {
   password: string = '';
   rememberMe: boolean = false;
 
-  constructor(private router: Router, private http: HttpClient) { }
+  constructor(private router: Router, private http: HttpClient, private snackBar: MatSnackBar) { }
 
   onSubmit() {
     const user = {
@@ -41,19 +42,28 @@ export class LoginComponent {
     this.http.post('http://localhost:3000/login', user).subscribe(
       (response: any) => {
         console.log(response);
-        alert(response.message);
+        this.snackBar.open(response.message, 'Close', {
+          duration: 3000, // Snackbar duration
+        });
         if (response.token) {
           if (this.rememberMe) {
             localStorage.setItem('authToken', response.token);
-          } else {
             sessionStorage.setItem('authToken', response.token);
           }
           this.router.navigateByUrl('/dashboard');
         }
       },
       (error) => {
-        alert('Invalid credentials');
+        this.snackBar.open('Invalid credentials', 'Close', {
+          duration: 3000, // Snackbar duration
+        });
       }
     );
+  }
+
+  onRememberMeChange() {
+    // This method can handle additional logic if needed
+    // Currently, it logs the state of the checkbox
+    console.log('Remember Me:', this.rememberMe);
   }
 }

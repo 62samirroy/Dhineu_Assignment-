@@ -8,6 +8,7 @@ import { HttpClientModule, HttpClient, HttpParams, HttpHeaders } from '@angular/
 import { DashboardEntryComponent } from '../dashboard-entry/dashboard-entry.component';
 import { PaginationChangedEvent } from 'ag-grid-community';
 import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-dashboard',
@@ -47,7 +48,8 @@ export class DashboardComponent implements OnInit {
     private http: HttpClient,
     public dialog: MatDialog,
     private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar // Inject MatSnackBar
   ) { }
 
   ngOnInit() {
@@ -62,7 +64,10 @@ export class DashboardComponent implements OnInit {
   private handleError(error: any) {
     console.error('Error:', error);
     if (error.status === 500 && error.error.message === 'Failed to authenticate token') {
-      alert('Authentication error. Please log in again.');
+      this.snackBar.open('Authentication error. Please log in again.', 'Close', {
+        duration: 3000,
+        panelClass: ['snack-bar-error'] // Custom class for error messages
+      });
       this.router.navigateByUrl('/login');
     }
   }
@@ -100,6 +105,10 @@ export class DashboardComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.loadUsers(); // Refresh data after adding
+        this.snackBar.open('User added successfully!', 'Close', {
+          duration: 3000,
+          panelClass: ['snack-bar-success'] // Custom class for success messages
+        });
       }
     });
   }
@@ -113,6 +122,10 @@ export class DashboardComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.loadUsers(); // Refresh data after editing
+        this.snackBar.open('User updated successfully!', 'Close', {
+          duration: 3000,
+          panelClass: ['snack-bar-success'] // Custom class for success messages
+        });
       }
     });
   }
@@ -121,8 +134,20 @@ export class DashboardComponent implements OnInit {
     const headers = this.getAuthHeaders();
 
     this.http.delete(`http://localhost:3000/users/${userId}`, { headers }).subscribe(
-      () => this.loadUsers(), // Refresh data after deleting
-      error => this.handleError(error)
+      () => {
+        this.loadUsers(); // Refresh data after deleting
+        this.snackBar.open('User deleted successfully!', 'Close', {
+          duration: 3000,
+          panelClass: ['snack-bar-success'] // Custom class for success messages
+        });
+      },
+      error => {
+        this.handleError(error);
+        this.snackBar.open('Failed to delete user. Please try again.', 'Close', {
+          duration: 3000,
+          panelClass: ['snack-bar-error'] // Custom class for error messages
+        });
+      }
     );
   }
 

@@ -11,6 +11,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './login/login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { NavbarComponent } from './navbar/navbar.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-root',
@@ -32,7 +33,8 @@ import { NavbarComponent } from './navbar/navbar.component';
     DashboardComponent,
     AgGridModule,
     AppComponent,
-    NavbarComponent
+    NavbarComponent,
+    MatSnackBarModule
     
   ],
   templateUrl: './app.component.html',

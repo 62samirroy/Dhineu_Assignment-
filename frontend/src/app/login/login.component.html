@@ -13,11 +13,12 @@
                     <input matInput [(ngModel)]="password" name="password" type="password" required>
                 </mat-form-field>
             </div>
-            <div class="form-field">
-                <mat-checkbox [(ngModel)]="rememberMe" name="rememberMe">Remember Me</mat-checkbox>
+            <div class="form-field flex items-center">
+                <mat-checkbox [(ngModel)]="rememberMe" name="rememberMe" (change)="onRememberMeChange()">Remember
+                    Me</mat-checkbox>
             </div>
             <div class="flex justify-center">
-                <button mat-raised-button color="primary" type="submit" class="w-full">
+                <button mat-raised-button color="primary" type="submit" [disabled]="!rememberMe" class="w-full">
                     Login
                 </button>
             </div>

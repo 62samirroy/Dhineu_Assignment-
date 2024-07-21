@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
@@ -17,7 +18,11 @@ export class NavbarComponent implements OnInit {
   activeUser: any;
   showLogoutButton: boolean = false;
 
-  constructor(private router: Router, private http: HttpClient) { }
+  constructor(
+    private router: Router,
+    private http: HttpClient,
+    private snackBar: MatSnackBar
+  ) { }
 
   ngOnInit(): void {
     this.loadActiveUser();
@@ -66,10 +71,15 @@ export class NavbarComponent implements OnInit {
 
         // Redirect to login page
         this.router.navigateByUrl('/login');
-        console.log('Logout successful');
+        this.snackBar.open('Logout successful', 'Close', {
+          duration: 3000, // Snackbar duration
+        });
       },
       (error: any) => {
         console.error('Logout error:', error);
+        this.snackBar.open('Logout failed. Please try again.', 'Close', {
+          duration: 3000, // Snackbar duration
+        });
       }
     );
   }

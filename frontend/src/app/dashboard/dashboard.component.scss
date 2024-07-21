@@ -25,3 +25,14 @@
 .table tbody tr:nth-child(even) {
   background-color: #f9f9f9; /* Alternate row background color */
 }
+/* styles.scss or dashboard.component.scss */
+
+.mat-snack-bar-container.snack-bar-success {
+  background-color: #4caf50; /* Green for success */
+  color: white;
+}
+
+.mat-snack-bar-container.snack-bar-error {
+  background-color: #f44336; /* Red for error */
+  color: white;
+}
