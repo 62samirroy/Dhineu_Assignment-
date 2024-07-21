@@ -31,6 +31,7 @@ db.connect(err => {
 
 const jwtSecret = 'your-jwt-secret'; // Replace with a long random string
 
+// Endpoint for user login
 app.post('/login', (req, res) => {
     const { username, password, rememberMe } = req.body;
     const query = 'SELECT * FROM users WHERE username = ? AND password = ?';
@@ -42,14 +43,14 @@ app.post('/login', (req, res) => {
         if (results.length > 0) {
             const user = results[0];
             const token = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: rememberMe ? '7d' : '1h' });
-            
+
             // Store token in active_tokens table
             db.query('INSERT INTO active_tokens (token, user_id) VALUES (?, ?)', [token, user.id], (err) => {
                 if (err) {
                     console.error('Error storing token:', err);
                 }
             });
-            
+
             res.send({ message: 'Login successful', token, userId: user.id });
         } else {
             res.status(401).send({ message: 'Invalid credentials' });
@@ -115,33 +116,34 @@ app.delete('/users/:id', verifyToken, (req, res) => {
 
 // Endpoint to handle logout
 app.post('/logout', (req, res) => {
-  const token = req.headers['authorization']?.replace('Bearer ', '');
-  if (token) {
-    db.query('DELETE FROM active_tokens WHERE token = ?', [token], (err) => {
-      if (err) {
-        console.error('Error removing token:', err);
-        return res.status(500).json({ message: 'Logout failed' });
-      }
+    const token = req.headers['authorization']?.replace('Bearer ', '');
+    if (token) {
+        db.query('DELETE FROM active_tokens WHERE token = ?', [token], (err) => {
+            if (err) {
+                console.error('Error removing token:', err);
+                return res.status(500).json({ message: 'Logout failed' });
+            }
 
-      req.session.destroy((err) => {
-        if (err) {
-          console.error('Error destroying session:', err);
-          return res.status(500).json({ message: 'Logout failed' });
-        }
-        res.json({ message: 'Logout successful' });
-      });
-    });
-  } else {
-    req.session.destroy((err) => {
-      if (err) {
-        console.error('Error destroying session:', err);
-        return res.status(500).json({ message: 'Logout failed' });
-      }
-      res.json({ message: 'Logout successful' });
-    });
-  }
+            req.session.destroy((err) => {
+                if (err) {
+                    console.error('Error destroying session:', err);
+                    return res.status(500).json({ message: 'Logout failed' });
+                }
+                res.json({ message: 'Logout successful' });
+            });
+        });
+    } else {
+        req.session.destroy((err) => {
+            if (err) {
+                console.error('Error destroying session:', err);
+                return res.status(500).json({ message: 'Logout failed' });
+            }
+            res.json({ message: 'Logout successful' });
+        });
+    }
 });
 
+// Fetch the count of active tokens (protected route)
 app.get('/active-tokens/count', verifyToken, (req, res) => {
     db.query('SELECT COUNT(*) AS count FROM active_tokens', (err, results) => {
         if (err) {
@@ -168,7 +170,6 @@ app.get('/users/:id', verifyToken, (req, res) => {
         }
     });
 });
-
 
 const port = 3000;
 app.listen(port, () => {

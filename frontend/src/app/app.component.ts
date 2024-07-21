@@ -35,7 +35,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     AppComponent,
     NavbarComponent,
     MatSnackBarModule
-    
+
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
