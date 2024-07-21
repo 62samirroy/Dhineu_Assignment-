@@ -25,12 +25,22 @@ export class NavbarComponent implements OnInit {
   }
 
   loadActiveUser() {
-    this.http.get<any>('http://localhost:3000/active-user').subscribe(
-      (data: any) => {
-        this.activeUser = data;
-      },
-      (error: any) => {
+    const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+    if (!token) {
+      this.router.navigateByUrl('/login');
+      return;
+    }
+
+    this.http.get<any>('http://localhost:3000/activeUser', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    }).subscribe(
+      user => this.activeUser = user,
+      error => {
         console.error('Error loading active user:', error);
+        if (error.status === 401) {
+          // Unauthorized, clear the token and redirect to login
+          this.logout();
+        }
       }
     );
   }
@@ -47,8 +57,15 @@ export class NavbarComponent implements OnInit {
   logout() {
     this.http.post<any>('http://localhost:3000/logout', {}).subscribe(
       () => {
-        this.activeUser = null; // Clear the active user
-        this.router.navigateByUrl('/login'); // Redirect to login page
+        // Clear the token from storage
+        sessionStorage.removeItem('authToken');
+        localStorage.removeItem('authToken');
+
+        // Clear the active user
+        this.activeUser = null;
+
+        // Redirect to login page
+        this.router.navigateByUrl('/login');
         console.log('Logout successful');
       },
       (error: any) => {

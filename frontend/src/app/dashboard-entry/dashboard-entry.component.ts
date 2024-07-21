@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { HttpClientModule, HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
   selector: 'app-dashboard-entry',
@@ -24,6 +24,11 @@ export class DashboardEntryComponent {
     this.user = data.user || { username: '', password: '', fullname: '', mobileno: '', active: false };
   }
 
+  private getAuthHeaders(): HttpHeaders {
+    const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+    return new HttpHeaders().set('Authorization', token ? `Bearer ${token}` : '');
+  }
+
   onSave() {
     const payload = {
       username: this.user.username,
@@ -33,14 +38,16 @@ export class DashboardEntryComponent {
       active: this.user.active
     };
 
+    const headers = this.getAuthHeaders();
+
     if (this.user.id) {
       // Edit user
-      this.http.put(`http://localhost:3000/users/${this.user.id}`, payload).subscribe(() => {
+      this.http.put(`http://localhost:3000/users/${this.user.id}`, payload, { headers }).subscribe(() => {
         this.dialogRef.close(payload);
       });
     } else {
       // Add user
-      this.http.post('http://localhost:3000/users', payload).subscribe(() => {
+      this.http.post('http://localhost:3000/users', payload, { headers }).subscribe(() => {
         this.dialogRef.close(payload);
       });
     }

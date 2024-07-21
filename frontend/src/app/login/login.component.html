@@ -13,6 +13,9 @@
                     <input matInput [(ngModel)]="password" name="password" type="password" required>
                 </mat-form-field>
             </div>
+            <div class="form-field">
+                <mat-checkbox [(ngModel)]="rememberMe" name="rememberMe">Remember Me</mat-checkbox>
+            </div>
             <div class="flex justify-center">
                 <button mat-raised-button color="primary" type="submit" class="w-full">
                     Login
