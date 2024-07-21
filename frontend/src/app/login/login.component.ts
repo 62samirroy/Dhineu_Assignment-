@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClientModule } from '@angular/common/http';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-login',
@@ -30,7 +31,22 @@ export class LoginComponent {
   password: string = '';
   rememberMe: boolean = false;
 
-  constructor(private router: Router, private http: HttpClient, private snackBar: MatSnackBar) { }
+  constructor(
+    private router: Router,
+    private http: HttpClient,
+    private snackBar: MatSnackBar,
+    private cookieService: CookieService
+  ) {
+    this.loadRememberedCredentials();
+  }
+
+  loadRememberedCredentials() {
+    if (this.cookieService.check('rememberMe') && this.cookieService.get('rememberMe') === 'true') {
+      this.username = this.cookieService.get('username') || '';
+      this.password = this.cookieService.get('password') || '';
+      this.rememberMe = true;
+    }
+  }
 
   onSubmit() {
     const user = {
@@ -46,12 +62,20 @@ export class LoginComponent {
           duration: 3000, // Snackbar duration
         });
         if (response.token) {
-          if (this.rememberMe) {
-            localStorage.setItem('authToken', response.token);
-            sessionStorage.setItem('authToken', response.token);
-          }
-          // Store user ID in localStorage
+          localStorage.setItem('authToken', response.token);
+          sessionStorage.setItem('authToken', response.token);
           localStorage.setItem('currentUserId', response.userId);
+
+          if (this.rememberMe) {
+            this.cookieService.set('username', this.username, 7); // Store for 7 days
+            this.cookieService.set('password', this.password, 7); // Store for 7 days
+            this.cookieService.set('rememberMe', 'true', 7); // Store for 7 days
+          } else {
+            this.cookieService.delete('username');
+            this.cookieService.delete('password');
+            this.cookieService.delete('rememberMe');
+          }
+
           this.router.navigateByUrl('/dashboard');
         }
       },
@@ -64,9 +88,6 @@ export class LoginComponent {
   }
 
   onRememberMeChange() {
-    // This method can handle additional logic if needed
-    // Currently, it logs the state of the checkbox
     console.log('Remember Me:', this.rememberMe);
   }
-  
 }

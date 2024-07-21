@@ -6,6 +6,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-navbar',
@@ -24,7 +25,7 @@ export class NavbarComponent implements OnInit {
     private router: Router,
     private http: HttpClient,
     private snackBar: MatSnackBar,
-    
+    private cookieService: CookieService
   ) { }
 
   ngOnInit() {
@@ -32,7 +33,6 @@ export class NavbarComponent implements OnInit {
     this.fetchActiveTokenCount(); // Fetch token count on initialization
   }
 
-  
   checkUrlForDashboard() {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
@@ -86,10 +86,12 @@ export class NavbarComponent implements OnInit {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     this.http.post<any>('http://localhost:3000/logout', {}, { headers }).subscribe(
       () => {
-        this.fetchActiveTokenCount(); // Fetch token count on initialization
         sessionStorage.removeItem('authToken');
         localStorage.removeItem('authToken');
         localStorage.removeItem('currentUserId');
+        this.cookieService.delete('username');
+        this.cookieService.delete('password');
+        this.cookieService.delete('rememberMe');
         this.activeUser = null;
         this.router.navigateByUrl('/login');
         this.snackBar.open('Logout successful', 'Close', {
@@ -104,8 +106,6 @@ export class NavbarComponent implements OnInit {
       }
     );
   }
-
-  // Existing code...
 
   fetchActiveTokenCount() {
     const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
@@ -122,5 +122,4 @@ export class NavbarComponent implements OnInit {
       );
     }
   }
-
 }
